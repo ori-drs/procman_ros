@@ -233,16 +233,16 @@ class SheriffCommandConsole(Gtk.ScrolledWindow, SheriffListener):
             tb.insert_with_tags(end_iter, seg, tag)
 
         # toss out old text if the buffer is getting too big
-        num_lines = tb.get_line_count()
-        if num_lines > self.stdout_maxlines:
-            start_iter = tb.get_start_iter()
-            chop_iter = tb.get_iter_at_line(num_lines - self.stdout_maxlines)
+        if tb.get_line_count() > self.stdout_maxlines:
             # Must use idle_add here otherwise the output console will not be updated correctly
-            GLib.idle_add(functools.partial(
-                self.del_tb, start_iter, chop_iter))
+            GLib.idle_add(functools.partial(self._trim_buffer, tb))
 
-    def del_tb(self, start, chop):
-        self.sheriff_tb.delete(start, chop)
+    def _trim_buffer(self, tb):
+        # Trim the buffer the text went into, with iterators taken now (older ones are invalid after inserts).
+        excess = tb.get_line_count() - self.stdout_maxlines
+        if excess > 0:
+            tb.delete(tb.get_start_iter(), tb.get_iter_at_line(excess))
+        return False  # run once
 
     # Sheriff event handlers
     def _gtk_on_sheriff_command_added(self, deputy, command):

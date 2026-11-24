@@ -21,10 +21,18 @@ import procman_ros.sheriff_config as sheriff_config
 
 from builtin_interfaces.msg import Time
 
-def _dbg(text):
-    return
+_verbose = False
 
-#    sys.stderr.write("{}\n".format(text))
+
+def set_verbose(enabled):
+    """Print debug messages, such as every status update received from the deputies."""
+    global _verbose
+    _verbose = enabled
+
+
+def _dbg(text):
+    if _verbose:
+        sys.stderr.write("{}\n".format(text))
 
 
 def _warn(text):
@@ -702,8 +710,7 @@ class Sheriff:
             print("ignore old messages")
             return
 
-        #        _dbg("received pmd info from [{}]".format(msg.deputy_id))
-        print("received pmd info from [{}]".format(msg.deputy_id))
+        _dbg("received pmd info from [{}]".format(msg.deputy_id))
 
         with self._lock:
             deputy = self._get_or_make_deputy(msg.deputy_id)

@@ -740,10 +740,17 @@ def main():
         help="By default, the roscore started by the sheriff will be killed when sheriff exits. If you want the "
         "roscore to continue running, use this option.",
     )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Print debug messages, such as every status update received from the deputies.",
+    )
 
     # Parse only known args, ignore unknown_args
     # This is essential for use with roslaunch
     args, _ = parser.parse_known_args(sys.argv[1:])
+    sheriff.set_verbose(args.verbose)
 
     if hasattr(args, "procman_config_file"):
         try:
